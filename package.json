@@ -1,0 +1,13 @@
+{
+  "name": "joomni-google-sheets",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sync Joomni orders and enquiries into a Google Sheet with Apps Script.",
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "check": "for f in src/*.js; do node --check \"$f\" || exit 1; done",
+    "push": "clasp push"
+  }
+}

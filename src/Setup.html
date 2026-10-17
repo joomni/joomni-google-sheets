@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top" />
+    <style>
+      * { box-sizing: border-box; }
+      body { font-family: 'Google Sans', Roboto, Arial, sans-serif; margin: 0; padding: 4px 4px 0; color: #202124; font-size: 14px; }
+      p { margin: 0 0 12px; line-height: 1.5; color: #5f6368; }
+      label { display: block; font-weight: 500; margin: 14px 0 6px; }
+      input { width: 100%; padding: 9px 11px; border: 1px solid #dadce0; border-radius: 6px; font-size: 14px; }
+      input:focus { outline: none; border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.15); }
+      code { background: #f1f3f4; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+      details { margin-top: 12px; color: #5f6368; }
+      summary { cursor: pointer; font-size: 13px; }
+      .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+      button { padding: 9px 18px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid #dadce0; background: #fff; }
+      button.primary { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+      button:disabled { opacity: 0.6; cursor: default; }
+      .msg { margin-top: 14px; padding: 10px 12px; border-radius: 6px; font-size: 13px; display: none; }
+      .msg.error { display: block; background: #fce8e6; color: #b3261e; }
+      .msg.ok { display: block; background: #e6f4ea; color: #137333; }
+    </style>
+  </head>
+  <body>
+    <p>
+      Create an API key in your Joomni dashboard: <strong>Settings › API &amp; Webhooks › API keys</strong>, with the scopes
+      <code>store:read</code>, <code>orders:read</code> and <code>leads:read</code>.
+    </p>
+    <form id="form">
+      <label for="key">API key</label>
+      <input id="key" type="password" autocomplete="off" spellcheck="false" placeholder="jk_live_…" required />
+      <details>
+        <summary>Advanced</summary>
+        <label for="base">API address</label>
+        <input id="base" type="url" placeholder="https://api.joomni.com/api/v1" />
+      </details>
+      <p style="margin-top: 14px; font-size: 12px">
+        The key is stored in your Google account’s private script storage. Other editors of this spreadsheet can’t read it.
+      </p>
+      <div id="msg" class="msg" role="status"></div>
+      <div class="row">
+        <button type="button" onclick="google.script.host.close()">Cancel</button>
+        <button id="save" type="submit" class="primary">Connect</button>
+      </div>
+    </form>
+    <script>
+      var form = document.getElementById('form');
+      var msg = document.getElementById('msg');
+      var save = document.getElementById('save');
+
+      function show(text, kind) {
+        msg.textContent = text;
+        msg.className = 'msg ' + kind;
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        save.disabled = true;
+        save.textContent = 'Checking…';
+        google.script.run
+          .withSuccessHandler(function (res) {
+            show('Connected to ' + res.storeName + '. Use Joomni › Sync now, or turn on auto-sync.', 'ok');
+            save.textContent = 'Connected';
+            setTimeout(function () { google.script.host.close(); }, 2200);
+          })
+          .withFailureHandler(function (err) {
+            show(err.message || String(err), 'error');
+            save.disabled = false;
+            save.textContent = 'Connect';
+          })
+          .saveConnection(document.getElementById('key').value, document.getElementById('base').value);
+      });
+    </script>
+  </body>
+</html>
